@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Petite icône de notification (blanche, le système la colorise) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="52"
+    android:viewportHeight="52">
+    <group android:translateX="-28" android:translateY="-28">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M44.05,29.98 L63.95,29.98 L78.02,44.05 L78.02,63.95 L63.95,78.02 L44.05,78.02 L29.98,63.95 L29.98,44.05 Z M48,43.5 L48,64.5 L65.5,54 Z" />
+    </group>
+</vector>

@@ -1,0 +1,37 @@
+# Gradle
+.gradle/
+build/
+.kotlin/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Config locale (chemin du SDK, propre à chaque machine)
+local.properties
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Fichiers générés
+*.apk
+*.aab
+*.ap_
+*.dex
+output-metadata.json
+
+# Signature (ne jamais committer de clés)
+*.jks
+*.keystore
+keystore.properties
+
+# Logs et dumps de debug
+*.log
+*.logcat
+*.hprof
+
+# Système
+.DS_Store
+Thumbs.db
+desktop.ini

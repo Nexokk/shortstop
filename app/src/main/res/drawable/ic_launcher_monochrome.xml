@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Version monochrome (icônes à thème, Android 13+) : le triangle est découpé dans l'octogone -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="evenOdd"
+        android:pathData="M44.05,29.98 L63.95,29.98 L78.02,44.05 L78.02,63.95 L63.95,78.02 L44.05,78.02 L29.98,63.95 L29.98,44.05 Z M48,43.5 L48,64.5 L65.5,54 Z" />
+</vector>

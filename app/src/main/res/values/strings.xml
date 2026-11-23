@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Shortstop</string>
+    <string name="service_label">Shortstop</string>
+    <string name="service_description">Détecte les Shorts YouTube et les Reels Instagram et fait automatiquement retour. Aucune donnée n\'est collectée ni envoyée.</string>
+</resources>
