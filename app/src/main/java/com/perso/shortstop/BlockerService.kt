@@ -34,6 +34,13 @@ class BlockerService : AccessibilityService() {
         private const val DEBUG_DUMP_THROTTLE_MS = 2000L
         private const val DEBUG_DUMP_MAX_LINES = 300
         private const val BANNER_DURATION_MS = 2500L
+        private const val MILESTONE_BANNER_DURATION_MS = 5000L
+        /**
+         * Paliers (minutes restantes) signalés pendant un déblocage temporaire.
+         * Seuls ceux strictement inférieurs à la durée choisie s'affichent :
+         * 30 min de déblocage → 10, 5 et 1 min.
+         */
+        private val MILESTONES_MIN = listOf(30, 10, 5, 1)
         /** Durée max pour finir la vidéo en cours après un déblocage (Shorts/Reels : 3 min max). */
         private const val GRACE_MAX_MS = 4 * 60_000L
     }
@@ -58,6 +65,12 @@ class BlockerService : AccessibilityService() {
     private val grace = mutableMapOf<String, String>()
     private val graceStartedAt = mutableMapOf<String, Long>()
     private val expiryRunnable = Runnable { checkScreen() }
+
+    /** Prochain palier programmé : module, heure de fin du déblocage, minutes restantes. */
+    private var pendingMilestone: Triple<String, Long, Int>? = null
+    /** Dernier palier traité, pour ne jamais l'afficher deux fois. */
+    private var lastMilestone: Triple<String, Long, Int>? = null
+    private val milestoneRunnable = Runnable { onMilestone() }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         val blocker = BY_PACKAGE[event.packageName?.toString()] ?: return
@@ -111,6 +124,7 @@ class BlockerService : AccessibilityService() {
         if (until > wallNow) {
             handler.removeCallbacks(expiryRunnable)
             handler.postDelayed(expiryRunnable, until - wallNow + 50)
+            scheduleMilestone(blocker.key, until, wallNow)
             if (blocker.debug && blocker.check(root)) blocker.log("débloqué, vidéo : ${blocker.signature(root)}")
             return
         }
@@ -150,8 +164,34 @@ class BlockerService : AccessibilityService() {
         }
     }
 
+    /** Programme le prochain palier (le plus grand encore à venir) pour le déblocage en cours. */
+    private fun scheduleMilestone(key: String, until: Long, wallNow: Long) {
+        handler.removeCallbacks(milestoneRunnable)
+        val remaining = until - wallNow
+        val minutes = MILESTONES_MIN.firstOrNull {
+            it * 60_000L < remaining && Triple(key, until, it) != lastMilestone
+        }
+        pendingMilestone = minutes?.let { Triple(key, until, it) }
+        if (minutes != null) handler.postDelayed(milestoneRunnable, remaining - minutes * 60_000L)
+    }
+
+    /** Heure d'un palier : popup si l'app débloquée est toujours à l'écran et le déblocage inchangé. */
+    private fun onMilestone() {
+        val milestone = pendingMilestone ?: return
+        val (key, until, minutes) = milestone
+        pendingMilestone = null
+        lastMilestone = milestone
+        if (Prefs.pauseUntil(this, key) != until) return // rebloqué ou nouveau déblocage entre-temps
+        val blocker = BY_PACKAGE[rootInActiveWindow?.packageName?.toString()]
+        if (blocker?.key == key) {
+            blocker.log("palier : $minutes min restantes")
+            showBanner("Plus que $minutes min de déblocage", MILESTONE_BANNER_DURATION_MS)
+        }
+        scheduleMilestone(key, until, System.currentTimeMillis())
+    }
+
     /** Bandeau en haut de l'écran (overlay d'accessibilité : aucune permission supplémentaire). */
-    private fun showBanner(message: String) {
+    private fun showBanner(message: String, durationMs: Long = BANNER_DURATION_MS) {
         val wm = getSystemService(WINDOW_SERVICE) as WindowManager
         hideBanner()
 
@@ -184,7 +224,7 @@ class BlockerService : AccessibilityService() {
         try {
             wm.addView(view, params)
             banner = view
-            handler.postDelayed(hideBannerRunnable, BANNER_DURATION_MS)
+            handler.postDelayed(hideBannerRunnable, durationMs)
         } catch (e: Exception) {
             Log.w(TAG, "Impossible d'afficher le bandeau", e)
         }

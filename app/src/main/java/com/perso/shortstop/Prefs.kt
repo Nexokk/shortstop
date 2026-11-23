@@ -19,8 +19,15 @@ object Prefs {
     fun setDebug(ctx: Context, value: Boolean) = prefs(ctx).edit().putBoolean(KEY_DEBUG, value).apply()
 
     fun isEnabled(ctx: Context, key: String) = prefs(ctx).getBoolean(name("enabled", key), true)
+    /**
+     * Couper un module compte comme un déblocage pour la série, et le réactiver aussi
+     * (il est resté débloqué jusqu'à aujourd'hui) : la série repart de ce jour-là.
+     */
     fun setEnabled(ctx: Context, key: String, value: Boolean) =
-        prefs(ctx).edit().putBoolean(name("enabled", key), value).apply()
+        prefs(ctx).edit()
+            .putBoolean(name("enabled", key), value)
+            .putString("last_unlock_date_$key", LocalDate.now().toString())
+            .apply()
 
     /** Déblocage temporaire : heure de fin (System.currentTimeMillis), 0 si aucun. */
     fun pauseUntil(ctx: Context, key: String) = prefs(ctx).getLong("pause_until_$key", 0L)
@@ -60,8 +67,10 @@ object Prefs {
     /**
      * Série : nombre de jours d'affilée sans déblocage, aujourd'hui compris.
      * Débloqué aujourd'hui = 0. Débloqué hier = 1. Jamais débloqué = jours depuis l'installation.
+     * Module coupé = 0.
      */
     fun streakDays(ctx: Context, key: String): Long {
+        if (!isEnabled(ctx, key)) return 0
         val p = prefs(ctx)
         val today = LocalDate.now()
         val lastUnlock = p.getString("last_unlock_date_$key", null)?.let(LocalDate::parse)
