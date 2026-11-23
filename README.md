@@ -42,14 +42,20 @@ Dès qu'un Short ou un Reel s'ouvre, l'app fait automatiquement « retour » et 
 
 ## Installation
 
-L'app n'est pas sur le Play Store : on la compile et on l'installe soi-même.
+L'app n'est pas sur le Play Store.
 
-### Prérequis
+### Télécharger l'APK
+
+Le plus simple : télécharger le fichier `shortstop-X.Y.Z.apk` de la dernière version dans les [Releases](https://github.com/Nexokk/shortstop/releases), l'ouvrir sur le téléphone et autoriser l'installation d'applications inconnues quand Android le demande. Passer ensuite à [Activer le blocage sur le téléphone](#activer-le-blocage-sur-le-téléphone).
+
+### Compiler soi-même
+
+#### Prérequis
 
 - Android Studio (ou un JDK 17 à 21 et le SDK Android)
 - Un téléphone Android 8 ou plus récent, avec le **débogage USB** activé (Paramètres → À propos du téléphone → Informations sur le logiciel → appuyer 7 fois sur « Numéro de version », puis Options de développement → Débogage USB)
 
-### Compiler et installer
+#### Compiler et installer
 
 Depuis Android Studio : ouvrir le dossier du projet, brancher le téléphone, cliquer sur **Run**.
 
